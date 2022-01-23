@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Providers\RouteServiceProvider;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class RedirectIfAuthenticated
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string|null  ...$guards
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next, ...$guards)
+    {
+        $guards = empty($guards) ? [null] : $guards;
+
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check() && Auth::user()->role->id == 1) {
+                return redirect()->route('admin.dashboard');//admin hisebe login kora thakle admin ei redirect korbe //author e dukhte parbe na //admin hisebe login thke author route e access korte caile admin dashboard e redirect korbe
+            }elseif(Auth::guard($guard)->check() && Auth::user()->role->id == 2){
+                return redirect()->route('author.dashboard');
+            }else{
+                return $next($request);
+            }
+        }
+
+        // return $next($request);
+    }
+}
